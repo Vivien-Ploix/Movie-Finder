@@ -5,10 +5,13 @@ var modal = document.getElementById("myModal");
 var modalContent = document.getElementsByClassName("modal-content")[0];
 var span = document.getElementsByClassName("close")[0];
 
+search.addEventListener("click", searchMovie);
+
 function searchMovie(e) {
   e.preventDefault();
   var inputValue = input.value;
   fetchData(`http://www.omdbapi.com/?s=${inputValue}&apikey=${APIKEY}`);
+  launchObserver();
 }
 
 const fetchData = (url) => {
@@ -50,10 +53,29 @@ const fetchDataModal = (imdbID) => {
     .catch((error) => console.error(`error: ${error}`));
 };
 
-search.addEventListener("click", searchMovie);
 
 window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
 };
+
+let observer = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.intersectionRatio > 0.5) {
+      entry.target.classList.remove('not-visible')
+      observer.unobserve(entry.target)
+    }
+  })
+}, {
+  threshold: [0.5]
+});
+
+
+const launchObserver = () => {
+  const movies = document.querySelectorAll('.list-media')
+  movies.forEach(function (movie) {
+    movie.classList.add('not-visible')
+    observer.observe(movie)
+  })
+}
